@@ -52,27 +52,54 @@
         /* ── CONTACT FORM ── */
         const contactForm = document.getElementById('contactForm');
         if (contactForm) {
-            contactForm.addEventListener('submit', function(e) {
+            contactForm.addEventListener('submit', function (e) {
                 e.preventDefault();
-                
-                const fname = document.getElementById('fname').value;
-                const email = document.getElementById('email').value;
-                const message = document.getElementById('message').value;
 
-                if (!fname || !email || !message) {
-                    alert('Veuillez remplir les champs obligatoires (Prénom, Email, Message).');
-                    return;
-                }
+                const submitBtn = this.querySelector('button[type="submit"]');
+                const successMsg = document.getElementById('formSuccess');
 
-                // In production, replace with real form submission (Formspree, Netlify Forms, etc.)
-                // Example with FormData: 
-                // const formData = new FormData(this);
-                // console.log("Form data submitted:", Object.fromEntries(formData));
+                // Visual feedback during sending
+                const originalBtnText = submitBtn.innerHTML;
+                submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Envoi en cours...';
+                submitBtn.disabled = true;
 
-                document.getElementById('formSuccess').style.display = 'block';
-                setTimeout(() => document.getElementById('formSuccess').style.display = 'none', 6000);
-                
-                // Reset form
-                this.reset();
+                const formData = new FormData(this);
+                const object = Object.fromEntries(formData);
+                const json = JSON.stringify(object);
+
+                fetch('https://api.web3forms.com/submit', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: json
+                })
+                    .then(async (response) => {
+                        let res = await response.json();
+                        if (response.status == 200) {
+                            // Success
+                            successMsg.style.display = 'block';
+                            successMsg.innerHTML = "✅ Merci ! Votre message a été envoyé avec succès. Nous vous répondrons sous 48h.";
+                            this.reset();
+                        } else {
+                            // API Error
+                            console.log(response);
+                            alert("Une erreur est survenue : " + res.message);
+                        }
+                    })
+                    .catch(error => {
+                        console.log(error);
+                        alert("Erreur de connexion. Veuillez vérifier votre accès internet et réessayer.");
+                    })
+                    .finally(() => {
+                        // Reset button state
+                        submitBtn.innerHTML = originalBtnText;
+                        submitBtn.disabled = false;
+                        // Hide success message after 6 seconds
+                        setTimeout(() => {
+                            successMsg.style.display = 'none';
+                        }, 6000);
+                    });
             });
         }
