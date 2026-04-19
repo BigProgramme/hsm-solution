@@ -50,20 +50,29 @@
         }
 
         /* ── CONTACT FORM ── */
-        function submitForm() {
-            const fname = document.getElementById('fname').value;
-            const email = document.getElementById('email').value;
-            const message = document.getElementById('message').value;
-            if (!fname || !email || !message) {
-                alert('Veuillez remplir les champs obligatoires (Prénom, Email, Message).');
-                return;
-            }
-            // In production, replace with real form submission (Formspree, Netlify Forms, etc.)
-            document.getElementById('formSuccess').style.display = 'block';
-            setTimeout(() => document.getElementById('formSuccess').style.display = 'none', 6000);
-            // Reset form
-            ['fname', 'lname', 'email', 'phone', 'company', 'service', 'message'].forEach(id => {
-                const el = document.getElementById(id);
-                if (el) el.value = '';
+        const contactForm = document.getElementById('contactForm');
+        if (contactForm) {
+            contactForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const fname = document.getElementById('fname').value;
+                const email = document.getElementById('email').value;
+                const message = document.getElementById('message').value;
+
+                if (!fname || !email || !message) {
+                    alert('Veuillez remplir les champs obligatoires (Prénom, Email, Message).');
+                    return;
+                }
+
+                // In production, replace with real form submission (Formspree, Netlify Forms, etc.)
+                // Example with FormData: 
+                // const formData = new FormData(this);
+                // console.log("Form data submitted:", Object.fromEntries(formData));
+
+                document.getElementById('formSuccess').style.display = 'block';
+                setTimeout(() => document.getElementById('formSuccess').style.display = 'none', 6000);
+                
+                // Reset form
+                this.reset();
             });
         }
